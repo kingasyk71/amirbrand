@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Amir — чеклист открытия</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Manrope:wght@400;500;600&display=swap">
+<style>
+/* Layout: one narrow column, sections like ledger pages of a gentlemen's club */
+:root{
+  --bg:#f5f3ee; --surface:#fffdf8; --fg:#1f1d1a; --muted:#6f6a60;
+  --line:#e3ddd0; --accent:#1f4a3a; --brass:#a5813f; --done:#9a958a; --danger:#a23b2e;
+  --display:"Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --body:"Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#151815; --surface:#1d211d; --fg:#ece8df; --muted:#a39e92;
+  --line:#2f342f; --accent:#7fb89c; --brass:#c9a35e; --done:#6c6a63; --danger:#e07a6a; color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.45}
+.wrap{max-width:640px;margin:0 auto;padding-block:calc(28px + env(safe-area-inset-top,0px)) 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;flex-direction:column;gap:22px}
+header{display:flex;flex-direction:column;gap:6px}
+.eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass);font-weight:600}
+h1{font-family:var(--display);font-size:34px;line-height:1.05;margin:0;text-wrap:balance}
+.meta{color:var(--muted);font-size:13px}
+.progress{display:flex;align-items:center;gap:12px;margin-top:8px}
+.bar{flex:1;height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+.count{font-variant-numeric:tabular-nums;font-size:13px;color:var(--muted);min-width:56px;text-align:right}
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:6px}
+.status{font-size:12px;color:var(--muted)}
+.status.warn{color:var(--danger)}
+button{font:inherit;cursor:pointer}
+.btn{border:1px solid var(--accent);background:transparent;color:var(--accent);border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600}
+.btn.on{background:var(--accent);color:var(--surface)}
+.btn:focus-visible,.link:focus-visible,.del:focus-visible,.addsec:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+#list{display:flex;flex-direction:column;gap:14px}
+section{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px 6px}
+h2{font-family:var(--display);font-size:22px;margin:0 0 4px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+h2 small{font-family:var(--body);font-size:12px;font-weight:500;color:var(--brass);white-space:nowrap}
+ul{list-style:none;margin:0;padding:0}
+li{border-top:1px solid var(--line)}
+li:first-child{border-top:0}
+.row{display:flex;gap:12px;align-items:flex-start;padding:10px 0}
+label.row{cursor:pointer}
+input[type=checkbox]{appearance:none;flex:none;width:20px;height:20px;margin:1px 0 0;border:1.5px solid var(--muted);border-radius:5px;display:grid;place-content:center;cursor:pointer;background:transparent}
+input[type=checkbox]::after{content:"";width:10px;height:6px;border-left:2px solid var(--surface);border-bottom:2px solid var(--surface);transform:rotate(-45deg) translate(1px,-1px);opacity:0}
+input[type=checkbox]:checked{background:var(--accent);border-color:var(--accent)}
+input[type=checkbox]:checked::after{opacity:1}
+input[type=checkbox]:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+.t{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.t b{font-weight:500;overflow-wrap:anywhere}
+.t span{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.t .due{font-size:11px;font-weight:600;color:var(--brass);letter-spacing:.04em}
+li.is-done .t b{color:var(--done);text-decoration:line-through}
+.f{display:flex;flex-direction:column;gap:6px;min-width:0;flex:1}
+.f input{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px;width:100%}
+.f input:focus{outline:2px solid var(--brass);outline-offset:0;border-color:transparent}
+.f input.main{font-weight:500}
+.f input.sm{font-size:13px}
+.pair{display:flex;gap:6px}
+.pair input:last-child{max-width:40%}
+.sec-edit{display:flex;gap:6px;margin-bottom:8px;align-items:center}
+.sec-edit input.main{font-family:var(--display);font-size:20px;font-weight:700}
+.del{flex:none;border:0;background:transparent;color:var(--danger);font-size:20px;line-height:1;min-width:32px;height:32px;border-radius:6px}
+.del.ask{font-size:13px;font-weight:600}
+.link{border:0;background:transparent;color:var(--accent);font-weight:600;font-size:13px;padding:10px 0;display:block}
+.addsec{border:1px dashed var(--line);background:transparent;color:var(--accent);border-radius:10px;padding:14px;font-weight:600;font-size:14px}
+.empty{color:var(--muted);font-size:13px;padding:10px 0}
+footer{font-size:12px;color:var(--muted);text-align:center}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Amir Brand · Growth AG</span>
+    <h1>Чеклист к открытию в «Сыйлық»</h1>
+    <span class="meta">Открытие 14.11.2026</span>
+    <div class="progress"><div class="bar"><i id="bar"></i></div><span class="count" id="count">—</span></div>
+    <div class="toolbar"><span class="status" id="status">Загружаю…</span><button class="btn" id="mode" type="button">Редактировать</button></div>
+  </header>
+  <div id="list"></div>
+  <footer>Изменения видят все, у кого есть ссылка</footer>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+(function(){
+const sb = supabase.createClient("https://atjvitgupjmcyofouiuq.supabase.co","sb_publishable_FbzqjYRbgXE6xgQ7r9mGSQ_xXsyZmjF");
+let sections=[], tasks=[], edit=false, pendingRender=false;
+const timers={};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function setStatus(t,warn){const s=$("status");s.textContent=t;s.classList.toggle("warn",!!warn)}
+
+async function load(){
+  const [a,b]=await Promise.all([
+    sb.from("sections").select("*").order("pos").order("created_at"),
+    sb.from("tasks").select("*").order("pos").order("updated_at")
+  ]);
+  if(a.error||b.error){setStatus("Не удалось загрузить. Проверь интернет и обнови страницу",true);return}
+  sections=a.data;tasks=b.data;
+  safeRender();
+}
+function safeRender(){
+  const ae=document.activeElement;
+  if(edit && ae && ae.tagName==="INPUT" && ae.type!=="checkbox"){pendingRender=true;progress();return}
+  pendingRender=false;render();
+}
+function render(){
+  $("list").innerHTML=sections.map(sec=>{
+    const its=tasks.filter(t=>t.section_id===sec.id);
+    const head=edit
+      ?`<div class="sec-edit"><div class="f"><div class="pair"><input class="main" data-tbl="sections" data-id="${sec.id}" data-k="title" value="${esc(sec.title)}" placeholder="Раздел" aria-label="Название раздела"><input class="sm" data-tbl="sections" data-id="${sec.id}" data-k="due" value="${esc(sec.due)}" placeholder="Срок" aria-label="Срок раздела"></div></div><button class="del" type="button" data-delsec="${sec.id}" aria-label="Удалить раздел">×</button></div>`
+      :`<h2>${esc(sec.title)}${sec.due?`<small>${esc(sec.due)}</small>`:""}</h2>`;
+    const items=its.map(it=>{
+      const cid=`c-${it.id}`;
+      if(edit) return `<li class="${it.done?"is-done":""}"><div class="row"><input type="checkbox" id="${cid}" data-done="${it.id}" ${it.done?"checked":""} aria-label="Готово"><div class="f"><input class="main" id="t-${it.id}" data-tbl="tasks" data-id="${it.id}" data-k="t" value="${esc(it.t)}" placeholder="Задача"><div class="pair"><input class="sm" data-tbl="tasks" data-id="${it.id}" data-k="n" value="${esc(it.n)}" placeholder="Комментарий"><input class="sm" data-tbl="tasks" data-id="${it.id}" data-k="d" value="${esc(it.d)}" placeholder="Срок"></div></div><button class="del" type="button" data-del="${it.id}" aria-label="Удалить задачу">×</button></div></li>`;
+      return `<li class="${it.done?"is-done":""}"><label class="row" for="${cid}"><input type="checkbox" id="${cid}" data-done="${it.id}" ${it.done?"checked":""}><span class="t"><b>${esc(it.t)}</b>${it.n?`<span>${esc(it.n)}</span>`:""}${it.d?`<span class="due">${esc(it.d)}</span>`:""}</span></label></li>`;
+    }).join("");
+    return `<section><div>${head}</div><ul>${items||(edit?"":'<li class="empty">Пока пусто</li>')}</ul>${edit?`<button class="link" type="button" data-add="${sec.id}">+ Добавить задачу</button>`:""}</section>`;
+  }).join("")+(edit?`<button class="addsec" type="button" id="addsec">+ Новый раздел</button>`:"");
+  const m=$("mode");m.textContent=edit?"Готово":"Редактировать";m.classList.toggle("on",edit);
+  progress();
+}
+function progress(){
+  const done=tasks.filter(t=>t.done).length;
+  $("count").textContent=`${done} / ${tasks.length}`;
+  $("bar").style.width=(tasks.length?done/tasks.length*100:0)+"%";
+}
+async function run(p,okMsg){
+  setStatus("Сохраняю…");
+  const {error}=await p;
+  if(error){setStatus("Не сохранилось. Попробуй ещё раз",true);await load();return false}
+  setStatus(okMsg||"Сохранено");return true;
+}
+
+document.addEventListener("change",e=>{
+  const el=e.target;
+  if(el.dataset.done){
+    const it=tasks.find(t=>t.id===el.dataset.done);if(!it)return;
+    it.done=el.checked;el.closest("li").classList.toggle("is-done",el.checked);progress();
+    run(sb.from("tasks").update({done:el.checked,updated_at:new Date().toISOString()}).eq("id",it.id));
+  }
+});
+document.addEventListener("input",e=>{
+  const el=e.target;if(!el.dataset.tbl)return;
+  const {tbl,id,k}=el.dataset;const arr=tbl==="tasks"?tasks:sections;
+  const row=arr.find(r=>r.id===id);if(row)row[k]=el.value;
+  setStatus("Есть несохранённые изменения");
+  const key=tbl+id+k;clearTimeout(timers[key]);
+  timers[key]=setTimeout(()=>{delete timers[key];run(sb.from(tbl).update({[k]:el.value}).eq("id",id))},700);
+});
+document.addEventListener("focusout",()=>{setTimeout(()=>{if(pendingRender)safeRender()},0)});
+document.addEventListener("click",async e=>{
+  const b=e.target.closest("button");if(!b)return;
+  if(b.id==="mode"){
+    if(edit){
+      const empty=tasks.filter(t=>!t.t.trim()).map(t=>t.id);
+      if(empty.length){tasks=tasks.filter(t=>!empty.includes(t.id));run(sb.from("tasks").delete().in("id",empty))}
+    }
+    edit=!edit;render();return}
+  if(b.id==="addsec"){
+    const pos=Math.max(0,...sections.map(s=>s.pos))+1;
+    const {data,error}=await sb.from("sections").insert({title:"Новый раздел",pos}).select().single();
+    if(error){setStatus("Не удалось добавить раздел",true);return}
+    sections.push(data);render();setStatus("Сохранено");return}
+  if(b.dataset.add){
+    const sid=b.dataset.add;const pos=Math.max(0,...tasks.filter(t=>t.section_id===sid).map(t=>t.pos))+1;
+    const {data,error}=await sb.from("tasks").insert({section_id:sid,t:"",pos}).select().single();
+    if(error){setStatus("Не удалось добавить задачу",true);return}
+    tasks.push(data);render();const f=$("t-"+data.id);if(f)f.focus();return}
+  if(b.dataset.del){
+    const id=b.dataset.del;tasks=tasks.filter(t=>t.id!==id);render();
+    run(sb.from("tasks").delete().eq("id",id),"Удалено");return}
+  if(b.dataset.delsec){
+    const id=b.dataset.delsec;
+    if(tasks.some(t=>t.section_id===id)&&!b.classList.contains("ask")){b.classList.add("ask");b.textContent="Удалить раздел?";return}
+    sections=sections.filter(s=>s.id!==id);tasks=tasks.filter(t=>t.section_id!==id);render();
+    run(sb.from("sections").delete().eq("id",id),"Удалено");return}
+});
+
+let reloadTimer=null;
+sb.channel("checklist")
+  .on("postgres_changes",{event:"*",schema:"public",table:"tasks"},()=>{clearTimeout(reloadTimer);reloadTimer=setTimeout(load,400)})
+  .on("postgres_changes",{event:"*",schema:"public",table:"sections"},()=>{clearTimeout(reloadTimer);reloadTimer=setTimeout(load,400)})
+  .subscribe();
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)load()});
+
+load().then(()=>{if(!$("status").classList.contains("warn"))setStatus("Всё сохранено")});
+})();
+</script>
+</body>
+</html>
