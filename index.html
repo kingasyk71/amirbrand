@@ -4,179 +4,278 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#121c30">
 <title>Amir — чеклист открытия</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Manrope:wght@400;500;600&display=swap">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;0,6..96,700;1,6..96,500&family=Manrope:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: one narrow column, sections like ledger pages of a gentlemen's club */
+/* Layout: navy pinstripe header (the suit) over a cutter's order book (cream paper pages, chalk and thread) */
 :root{
-  --bg:#f5f3ee; --surface:#fffdf8; --fg:#1f1d1a; --muted:#6f6a60;
-  --line:#e3ddd0; --accent:#1f4a3a; --brass:#a5813f; --done:#9a958a; --danger:#a23b2e;
-  --display:"Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --navy:#121c30; --navy-2:#1a2742; --pin:rgba(236,228,210,.07);
+  --paper:#f6f1e6; --page:#fffcf5; --ink:#1b1a17; --muted:#6e675b; --rule:#e4dccb;
+  --brass:#b08d4a; --brass-hi:#d9b873; --oxblood:#7a2228; --chalk:#f0ebe0; --tape:#e8c860;
+  --display:"Bodoni Moda", "Didot", "Bodoni 72", Georgia, serif;
   --body:"Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"DM Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --ease:cubic-bezier(.22,.8,.24,1);
   color-scheme:light;
 }
-@media (prefers-color-scheme: dark){:root{
-  --bg:#151815; --surface:#1d211d; --fg:#ece8df; --muted:#a39e92;
-  --line:#2f342f; --accent:#7fb89c; --brass:#c9a35e; --done:#6c6a63; --danger:#e07a6a; color-scheme:dark}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.45}
-.wrap{max-width:640px;margin:0 auto;padding-block:calc(28px + env(safe-area-inset-top,0px)) 48px;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
-  display:flex;flex-direction:column;gap:22px}
-header{display:flex;flex-direction:column;gap:6px}
-.eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass);font-weight:600}
-h1{font-family:var(--display);font-size:34px;line-height:1.05;margin:0;text-wrap:balance}
-.meta{color:var(--muted);font-size:13px}
-.progress{display:flex;align-items:center;gap:12px;margin-top:8px}
-.bar{flex:1;height:6px;background:var(--line);border-radius:3px;overflow:hidden}
-.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
-.count{font-variant-numeric:tabular-nums;font-size:13px;color:var(--muted);min-width:56px;text-align:right}
-.toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:6px}
-.status{font-size:12px;color:var(--muted)}
-.status.warn{color:var(--danger)}
-button{font:inherit;cursor:pointer}
-.btn{border:1px solid var(--accent);background:transparent;color:var(--accent);border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600}
-.btn.on{background:var(--accent);color:var(--surface)}
-.btn:focus-visible,.link:focus-visible,.del:focus-visible,.addsec:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
-#list{display:flex;flex-direction:column;gap:14px}
-section{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px 6px}
-h2{font-family:var(--display);font-size:22px;margin:0 0 4px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
-h2 small{font-family:var(--body);font-size:12px;font-weight:500;color:var(--brass);white-space:nowrap}
+html{background:var(--paper)}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+.gut{max-width:660px;margin:0 auto;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
+
+/* ——— Header: the cloth ——— */
+.cloth{position:relative;color:var(--chalk);overflow:hidden;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 13px, var(--pin) 13px 14px),
+    radial-gradient(120% 90% at 85% -10%, #26365a 0%, transparent 60%),
+    linear-gradient(180deg,var(--navy-2),var(--navy));
+  padding-top:env(safe-area-inset-top,0px)}
+.cloth::after{content:"";position:absolute;inset:auto 0 0 0;height:1px;background:linear-gradient(90deg,transparent,var(--brass),transparent);opacity:.7}
+.head{padding-block:34px 26px;display:flex;flex-direction:column;gap:14px}
+.label{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--brass-hi)}
+.label i{flex:1;height:1px;background:currentColor;opacity:.35}
+h1{font-family:var(--display);font-weight:500;font-size:clamp(34px,9vw,48px);line-height:1.02;margin:0;letter-spacing:-.01em;text-wrap:balance}
+h1 em{font-style:italic;color:var(--brass-hi)}
+h1 .w{display:inline-block;animation:rise .9s var(--ease) both}
+.sub{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:rgba(240,235,224,.72)}
+.sub b{font-family:var(--mono);font-weight:500;color:var(--chalk);letter-spacing:.04em}
+
+/* the tape measure = progress */
+.tapewrap{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.tape{position:relative;height:30px;border-radius:3px;background:var(--tape);overflow:hidden;
+  box-shadow:0 1px 0 rgba(0,0,0,.25), inset 0 -1px 0 rgba(0,0,0,.08)}
+.tape .ticks{position:absolute;inset:0;background-image:linear-gradient(90deg,rgba(27,26,23,.8) 1px,transparent 1px),linear-gradient(90deg,rgba(27,26,23,.38) 1px,transparent 1px);background-size:calc(100% / var(--n,30)) 12px,calc(100% / var(--n,30) / 2) 6px;background-repeat:repeat-x}
+.tape .nums{position:absolute;inset:0;font-family:var(--mono);font-size:9px;color:rgba(27,26,23,.75)}
+.tape .nums span{position:absolute;bottom:3px;transform:translateX(3px)}
+.tape .fill{position:absolute;inset:0 auto 0 0;width:0;background:var(--oxblood);mix-blend-mode:multiply;opacity:.88;transition:width 1.1s var(--ease)}
+.tape .pin{position:absolute;top:-3px;bottom:-3px;width:2px;left:0;background:var(--chalk);box-shadow:0 0 0 1px rgba(0,0,0,.25);transition:left 1.1s var(--ease)}
+.tapemeta{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:12px;color:rgba(240,235,224,.7)}
+.tapemeta .count{font-family:var(--mono);font-size:13px;color:var(--chalk);font-variant-numeric:tabular-nums}
+
+/* ——— Toolbar ——— */
+.bar{position:sticky;top:0;z-index:5;background:rgba(246,241,230,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--rule);padding-top:env(safe-area-inset-top,0px)}
+.bar .gut{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:10px}
+.status{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px;min-width:0}
+.status::before{content:"";flex:none;width:7px;height:7px;border-radius:50%;background:#5b8a6b}
+.status.busy::before{background:var(--brass);animation:pulse 1s ease-in-out infinite}
+.status.warn{color:var(--oxblood)}
+.status.warn::before{background:var(--oxblood)}
+button{font:inherit;cursor:pointer;color:inherit}
+.btn{border:1px solid var(--navy);background:transparent;color:var(--navy);border-radius:999px;padding:8px 16px;font-size:13px;font-weight:600;letter-spacing:.02em;transition:background .25s,color .25s}
+.btn.on{background:var(--navy);color:var(--chalk)}
+:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+
+/* ——— Order book ——— */
+main{padding-block:22px 40px}
+#list{display:flex;flex-direction:column;gap:18px}
+.sec{position:relative;background:var(--page);border-radius:4px;padding:18px 18px 8px;
+  box-shadow:0 1px 0 var(--rule), 0 12px 24px -18px rgba(18,28,48,.35)}
+.sec::before{content:"";position:absolute;inset:6px;border:1px dashed rgba(176,141,74,.45);border-radius:2px;pointer-events:none}
+.first .sec{animation:rise .7s var(--ease) both;animation-delay:calc(var(--i) * 70ms + 250ms)}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 0 6px;position:relative}
+h2{font-family:var(--display);font-weight:500;font-size:24px;line-height:1.1;margin:0;min-width:0;overflow-wrap:anywhere}
+.sec-meta{display:flex;align-items:baseline;gap:10px;flex:none}
+.due{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--brass);white-space:nowrap}
+.frac{font-family:var(--mono);font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.stamp{display:inline-block;margin-left:2px;font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--oxblood);border:1.5px solid var(--oxblood);padding:3px 7px;border-radius:3px;transform:rotate(-8deg);opacity:.85;background:var(--page)}
+.stamp.fresh{animation:stamp .55s var(--ease) both}
 ul{list-style:none;margin:0;padding:0}
-li{border-top:1px solid var(--line)}
+li{border-top:1px solid var(--rule)}
 li:first-child{border-top:0}
-.row{display:flex;gap:12px;align-items:flex-start;padding:10px 0}
+.row{display:flex;gap:14px;align-items:flex-start;padding:12px 0;position:relative}
 label.row{cursor:pointer}
-input[type=checkbox]{appearance:none;flex:none;width:20px;height:20px;margin:1px 0 0;border:1.5px solid var(--muted);border-radius:5px;display:grid;place-content:center;cursor:pointer;background:transparent}
-input[type=checkbox]::after{content:"";width:10px;height:6px;border-left:2px solid var(--surface);border-bottom:2px solid var(--surface);transform:rotate(-45deg) translate(1px,-1px);opacity:0}
-input[type=checkbox]:checked{background:var(--accent);border-color:var(--accent)}
-input[type=checkbox]:checked::after{opacity:1}
-input[type=checkbox]:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
-.t{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
-.t b{font-weight:500;overflow-wrap:anywhere}
-.t span{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
-.t .due{font-size:11px;font-weight:600;color:var(--brass);letter-spacing:.04em}
-li.is-done .t b{color:var(--done);text-decoration:line-through}
+
+/* the checkbox is a suit button: four holes; ticking sews it on */
+.cb{position:absolute;opacity:0;width:24px;height:24px;margin:0;left:0;top:10px;cursor:pointer}
+.btnface{flex:none;width:24px;height:24px;display:block;color:var(--muted);transition:transform .35s var(--ease)}
+.btnface .disc{fill:transparent;stroke:currentColor;stroke-width:1.3;transition:fill .3s,stroke .3s}
+.btnface .hole{fill:currentColor;transition:fill .3s}
+.btnface .thread{fill:none;stroke:var(--chalk);stroke-width:1.6;stroke-linecap:round;stroke-dasharray:9;stroke-dashoffset:9;transition:stroke-dashoffset .45s var(--ease) .12s}
+.cb:checked + .btnface{color:var(--oxblood);transform:rotate(90deg)}
+.cb:checked + .btnface .disc{fill:var(--oxblood);stroke:var(--oxblood)}
+.cb:checked + .btnface .hole{fill:#4a1418}
+.cb:checked + .btnface .thread{stroke-dashoffset:0}
+.cb:focus-visible + .btnface{outline:2px solid var(--brass);outline-offset:3px;border-radius:50%}
+label.row:hover .btnface{color:var(--navy)}
+
+.t{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
+.t b{font-weight:500;position:relative;align-self:flex-start;overflow-wrap:anywhere;transition:color .3s}
+.t b::after{content:"";position:absolute;left:-2px;right:-2px;top:52%;height:1.5px;background:var(--brass);transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease)}
+.t .note{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.t .d{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--brass)}
+li.done .t b{color:#9a9385}
+li.done .t b::after{transform:scaleX(1)}
+.empty{color:var(--muted);font-size:13px;padding:12px 0;font-style:italic}
+
+/* edit mode */
 .f{display:flex;flex-direction:column;gap:6px;min-width:0;flex:1}
-.f input{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px;width:100%}
+.f input{font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:4px;padding:7px 9px;width:100%}
 .f input:focus{outline:2px solid var(--brass);outline-offset:0;border-color:transparent}
 .f input.main{font-weight:500}
 .f input.sm{font-size:13px}
 .pair{display:flex;gap:6px}
-.pair input:last-child{max-width:40%}
-.sec-edit{display:flex;gap:6px;margin-bottom:8px;align-items:center}
-.sec-edit input.main{font-family:var(--display);font-size:20px;font-weight:700}
-.del{flex:none;border:0;background:transparent;color:var(--danger);font-size:20px;line-height:1;min-width:32px;height:32px;border-radius:6px}
-.del.ask{font-size:13px;font-weight:600}
-.link{border:0;background:transparent;color:var(--accent);font-weight:600;font-size:13px;padding:10px 0;display:block}
-.addsec{border:1px dashed var(--line);background:transparent;color:var(--accent);border-radius:10px;padding:14px;font-weight:600;font-size:14px}
-.empty{color:var(--muted);font-size:13px;padding:10px 0}
-footer{font-size:12px;color:var(--muted);text-align:center}
-@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+.pair input:last-child{max-width:38%}
+.sec-edit{display:flex;gap:6px;align-items:center;margin-bottom:6px;position:relative}
+.sec-edit input.main{font-family:var(--display);font-size:20px}
+.del{flex:none;border:0;background:transparent;color:var(--oxblood);font-size:20px;line-height:1;min-width:32px;height:32px;border-radius:4px}
+.del:hover{background:var(--paper)}
+.del.ask{font-size:12px;font-weight:600}
+.link{border:0;background:transparent;color:var(--navy);font-weight:600;font-size:13px;padding:12px 0;display:block;position:relative}
+.addsec{border:1px dashed var(--brass);background:transparent;color:var(--navy);border-radius:4px;padding:16px;font-weight:600;font-size:14px}
+.editing .row{padding:10px 0}
+.editing .cb{top:16px}
+.editing .btnface{margin-top:6px}
+
+footer{padding-block:6px 36px;text-align:center;font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+footer span{color:var(--brass);white-space:nowrap}
+
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes stamp{0%{opacity:0;transform:rotate(-8deg) scale(1.8)}60%{opacity:.95;transform:rotate(-8deg) scale(.94)}100%{opacity:.85;transform:rotate(-8deg) scale(1)}}
+@keyframes pulse{50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <span class="eyebrow">Amir Brand · Growth AG</span>
-    <h1>Чеклист к открытию в «Сыйлық»</h1>
-    <span class="meta">Открытие 14.11.2026</span>
-    <div class="progress"><div class="bar"><i id="bar"></i></div><span class="count" id="count">—</span></div>
-    <div class="toolbar"><span class="status" id="status">Загружаю…</span><button class="btn" id="mode" type="button">Редактировать</button></div>
-  </header>
-  <div id="list"></div>
-  <footer>Изменения видят все, у кого есть ссылка</footer>
+<div class="cloth">
+  <div class="gut head">
+    <div class="label">Amir · Premium Collection<i></i>Атырау</div>
+    <h1><span class="w">Открытие</span> <span class="w" style="animation-delay:.08s">в</span> <em class="w" style="animation-delay:.16s">«Сыйлық»</em></h1>
+    <div class="sub"><span>Чеклист ателье</span><span>Открытие <b>14.11.2026</b></span><span id="left"></span></div>
+    <div class="tapewrap">
+      <div class="tape" aria-hidden="true"><div class="ticks"></div><div class="fill" id="fill"></div><div class="nums" id="nums"></div><div class="pin" id="pin"></div></div>
+      <div class="tapemeta"><span>Сшито задач</span><span class="count" id="count">— / —</span></div>
+    </div>
+  </div>
 </div>
+<div class="bar"><div class="gut"><span class="status busy" id="status">Загружаю…</span><button class="btn" id="mode" type="button">Редактировать</button></div></div>
+<main class="gut"><div id="list" class="first"></div></main>
+<footer class="gut">Правки видят все, у кого есть ссылка · <span>Growth AG</span></footer>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
 (function(){
 const sb = supabase.createClient("https://atjvitgupjmcyofouiuq.supabase.co","sb_publishable_FbzqjYRbgXE6xgQ7r9mGSQ_xXsyZmjF");
-let sections=[], tasks=[], edit=false, pendingRender=false;
+const OPEN = new Date(2026,10,14);
+let sections=[], tasks=[], edit=false, pendingRender=false, firstDone=false, completeSet=null;
 const timers={};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-function setStatus(t,warn){const s=$("status");s.textContent=t;s.classList.toggle("warn",!!warn)}
+const BTN='<svg class="btnface" viewBox="0 0 24 24" aria-hidden="true"><circle class="disc" cx="12" cy="12" r="10.5"/><circle class="hole" cx="9.2" cy="9.2" r="1.25"/><circle class="hole" cx="14.8" cy="9.2" r="1.25"/><circle class="hole" cx="9.2" cy="14.8" r="1.25"/><circle class="hole" cx="14.8" cy="14.8" r="1.25"/><path class="thread" d="M9.2 9.2L14.8 14.8M14.8 9.2L9.2 14.8"/></svg>';
+
+function setStatus(t,kind){const s=$("status");s.textContent=t;s.className="status"+(kind?" "+kind:"")}
+function plural(n,a,b,c){n=Math.abs(n)%100;const m=n%10;if(n>10&&n<20)return c;if(m>1&&m<5)return b;if(m===1)return a;return c}
+function countdown(){
+  const now=new Date();const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  const d=Math.round((OPEN-today)/86400000);
+  $("left").innerHTML = d>0 ? `до открытия <b>${d} ${plural(d,"день","дня","дней")}</b>` : d===0 ? "<b>Сегодня открытие</b>" : "Бутик открыт";
+}
 
 async function load(){
   const [a,b]=await Promise.all([
     sb.from("sections").select("*").order("pos").order("created_at"),
     sb.from("tasks").select("*").order("pos").order("updated_at")
   ]);
-  if(a.error||b.error){setStatus("Не удалось загрузить. Проверь интернет и обнови страницу",true);return}
-  sections=a.data;tasks=b.data;
-  safeRender();
+  if(a.error||b.error){setStatus("Не удалось загрузить. Проверь интернет","warn");return false}
+  sections=a.data;tasks=b.data;safeRender();return true;
 }
 function safeRender(){
   const ae=document.activeElement;
-  if(edit && ae && ae.tagName==="INPUT" && ae.type!=="checkbox"){pendingRender=true;progress();return}
+  if(edit&&ae&&ae.tagName==="INPUT"&&ae.type!=="checkbox"){pendingRender=true;progress();return}
   pendingRender=false;render();
 }
 function render(){
-  $("list").innerHTML=sections.map(sec=>{
+  const nowComplete=new Set(sections.filter(s=>{const its=tasks.filter(t=>t.section_id===s.id);return its.length&&its.every(t=>t.done)}).map(s=>s.id));
+  const list=$("list");
+  list.classList.toggle("editing",edit);
+  list.innerHTML=sections.map((sec,i)=>{
     const its=tasks.filter(t=>t.section_id===sec.id);
+    const dn=its.filter(t=>t.done).length;
+    const complete=nowComplete.has(sec.id);
+    const fresh=complete&&completeSet&&!completeSet.has(sec.id);
     const head=edit
       ?`<div class="sec-edit"><div class="f"><div class="pair"><input class="main" data-tbl="sections" data-id="${sec.id}" data-k="title" value="${esc(sec.title)}" placeholder="Раздел" aria-label="Название раздела"><input class="sm" data-tbl="sections" data-id="${sec.id}" data-k="due" value="${esc(sec.due)}" placeholder="Срок" aria-label="Срок раздела"></div></div><button class="del" type="button" data-delsec="${sec.id}" aria-label="Удалить раздел">×</button></div>`
-      :`<h2>${esc(sec.title)}${sec.due?`<small>${esc(sec.due)}</small>`:""}</h2>`;
+      :`<div class="sec-h"><h2>${esc(sec.title)}</h2><span class="sec-meta">${sec.due?`<span class="due">${esc(sec.due)}</span>`:""}${complete?`<span class="stamp${fresh?" fresh":""}">Готово</span>`:its.length?`<span class="frac">${dn}/${its.length}</span>`:""}</span></div>`;
     const items=its.map(it=>{
       const cid=`c-${it.id}`;
-      if(edit) return `<li class="${it.done?"is-done":""}"><div class="row"><input type="checkbox" id="${cid}" data-done="${it.id}" ${it.done?"checked":""} aria-label="Готово"><div class="f"><input class="main" id="t-${it.id}" data-tbl="tasks" data-id="${it.id}" data-k="t" value="${esc(it.t)}" placeholder="Задача"><div class="pair"><input class="sm" data-tbl="tasks" data-id="${it.id}" data-k="n" value="${esc(it.n)}" placeholder="Комментарий"><input class="sm" data-tbl="tasks" data-id="${it.id}" data-k="d" value="${esc(it.d)}" placeholder="Срок"></div></div><button class="del" type="button" data-del="${it.id}" aria-label="Удалить задачу">×</button></div></li>`;
-      return `<li class="${it.done?"is-done":""}"><label class="row" for="${cid}"><input type="checkbox" id="${cid}" data-done="${it.id}" ${it.done?"checked":""}><span class="t"><b>${esc(it.t)}</b>${it.n?`<span>${esc(it.n)}</span>`:""}${it.d?`<span class="due">${esc(it.d)}</span>`:""}</span></label></li>`;
+      if(edit) return `<li class="${it.done?"done":""}"><div class="row"><input class="cb" type="checkbox" id="${cid}" data-done="${it.id}" ${it.done?"checked":""} aria-label="Готово">${BTN}<div class="f"><input class="main" id="t-${it.id}" data-tbl="tasks" data-id="${it.id}" data-k="t" value="${esc(it.t)}" placeholder="Задача"><div class="pair"><input class="sm" data-tbl="tasks" data-id="${it.id}" data-k="n" value="${esc(it.n)}" placeholder="Комментарий"><input class="sm" data-tbl="tasks" data-id="${it.id}" data-k="d" value="${esc(it.d)}" placeholder="Срок"></div></div><button class="del" type="button" data-del="${it.id}" aria-label="Удалить задачу">×</button></div></li>`;
+      return `<li class="${it.done?"done":""}"><label class="row" for="${cid}"><input class="cb" type="checkbox" id="${cid}" data-done="${it.id}" ${it.done?"checked":""}>${BTN}<span class="t"><b>${esc(it.t)}</b>${it.n?`<span class="note">${esc(it.n)}</span>`:""}${it.d?`<span class="d">${esc(it.d)}</span>`:""}</span></label></li>`;
     }).join("");
-    return `<section><div>${head}</div><ul>${items||(edit?"":'<li class="empty">Пока пусто</li>')}</ul>${edit?`<button class="link" type="button" data-add="${sec.id}">+ Добавить задачу</button>`:""}</section>`;
+    return `<section class="sec" style="--i:${i}">${head}<ul>${items||(edit?"":'<li class="empty">Пока пусто</li>')}</ul>${edit?`<button class="link" type="button" data-add="${sec.id}">+ Добавить задачу</button>`:""}</section>`;
   }).join("")+(edit?`<button class="addsec" type="button" id="addsec">+ Новый раздел</button>`:"");
+  completeSet=nowComplete;
+  if(firstDone)list.classList.remove("first");
+  firstDone=true;
   const m=$("mode");m.textContent=edit?"Готово":"Редактировать";m.classList.toggle("on",edit);
   progress();
 }
 function progress(){
-  const done=tasks.filter(t=>t.done).length;
-  $("count").textContent=`${done} / ${tasks.length}`;
-  $("bar").style.width=(tasks.length?done/tasks.length*100:0)+"%";
+  const total=tasks.length, done=tasks.filter(t=>t.done).length;
+  $("count").textContent=`${done} / ${total}`;
+  const p=total?done/total*100:0;
+  requestAnimationFrame(()=>{$("fill").style.width=p+"%";$("pin").style.left=`calc(${p}% - 1px)`});
+  const n=$("nums");
+  if(total&&n.dataset.t!==String(total)){
+    const step=total>20?10:5;let h="";
+    for(let i=0;i<total;i+=step)h+=`<span style="left:${i/total*100}%">${i}</span>`;
+    n.innerHTML=h;n.dataset.t=total;n.parentNode.style.setProperty("--n",total);
+  }
 }
-async function run(p,okMsg){
-  setStatus("Сохраняю…");
+function liveSection(id){
+  // update section counter and stamp in place after a tick, without re-rendering the list
+  const it=tasks.find(t=>t.id===id);if(!it||edit)return;
+  const its=tasks.filter(t=>t.section_id===it.section_id);
+  const sec=document.querySelector(`[data-done="${id}"]`).closest(".sec");
+  const dn=its.filter(t=>t.done).length;
+  const meta=sec.querySelector(".sec-meta");if(!meta)return;
+  const old=meta.querySelector(".frac,.stamp");if(old)old.remove();
+  if(dn===its.length){meta.insertAdjacentHTML("beforeend",'<span class="stamp fresh">Готово</span>');completeSet&&completeSet.add(it.section_id)}
+  else{meta.insertAdjacentHTML("beforeend",`<span class="frac">${dn}/${its.length}</span>`);completeSet&&completeSet.delete(it.section_id)}
+}
+async function run(p,ok){
+  setStatus("Сохраняю…","busy");
   const {error}=await p;
-  if(error){setStatus("Не сохранилось. Попробуй ещё раз",true);await load();return false}
-  setStatus(okMsg||"Сохранено");return true;
+  if(error){setStatus("Не сохранилось, попробуй ещё раз","warn");await load();return false}
+  setStatus(ok||"Сохранено");return true;
 }
 
 document.addEventListener("change",e=>{
-  const el=e.target;
-  if(el.dataset.done){
-    const it=tasks.find(t=>t.id===el.dataset.done);if(!it)return;
-    it.done=el.checked;el.closest("li").classList.toggle("is-done",el.checked);progress();
-    run(sb.from("tasks").update({done:el.checked,updated_at:new Date().toISOString()}).eq("id",it.id));
-  }
+  const el=e.target;if(!el.dataset.done)return;
+  const it=tasks.find(t=>t.id===el.dataset.done);if(!it)return;
+  it.done=el.checked;el.closest("li").classList.toggle("done",el.checked);
+  progress();liveSection(it.id);
+  if(navigator.vibrate&&el.checked)try{navigator.vibrate(12)}catch(_){}
+  run(sb.from("tasks").update({done:el.checked,updated_at:new Date().toISOString()}).eq("id",it.id));
 });
 document.addEventListener("input",e=>{
   const el=e.target;if(!el.dataset.tbl)return;
-  const {tbl,id,k}=el.dataset;const arr=tbl==="tasks"?tasks:sections;
-  const row=arr.find(r=>r.id===id);if(row)row[k]=el.value;
-  setStatus("Есть несохранённые изменения");
+  const {tbl,id,k}=el.dataset;const row=(tbl==="tasks"?tasks:sections).find(r=>r.id===id);if(row)row[k]=el.value;
+  setStatus("Есть несохранённые правки","busy");
   const key=tbl+id+k;clearTimeout(timers[key]);
   timers[key]=setTimeout(()=>{delete timers[key];run(sb.from(tbl).update({[k]:el.value}).eq("id",id))},700);
 });
-document.addEventListener("focusout",()=>{setTimeout(()=>{if(pendingRender)safeRender()},0)});
+document.addEventListener("focusout",()=>setTimeout(()=>{if(pendingRender)safeRender()},0));
 document.addEventListener("click",async e=>{
   const b=e.target.closest("button");if(!b)return;
   if(b.id==="mode"){
-    if(edit){
-      const empty=tasks.filter(t=>!t.t.trim()).map(t=>t.id);
-      if(empty.length){tasks=tasks.filter(t=>!empty.includes(t.id));run(sb.from("tasks").delete().in("id",empty))}
-    }
+    if(edit){const empty=tasks.filter(t=>!t.t.trim()).map(t=>t.id);
+      if(empty.length){tasks=tasks.filter(t=>!empty.includes(t.id));run(sb.from("tasks").delete().in("id",empty))}}
     edit=!edit;render();return}
   if(b.id==="addsec"){
     const pos=Math.max(0,...sections.map(s=>s.pos))+1;
     const {data,error}=await sb.from("sections").insert({title:"Новый раздел",pos}).select().single();
-    if(error){setStatus("Не удалось добавить раздел",true);return}
+    if(error){setStatus("Не удалось добавить раздел","warn");return}
     sections.push(data);render();setStatus("Сохранено");return}
   if(b.dataset.add){
     const sid=b.dataset.add;const pos=Math.max(0,...tasks.filter(t=>t.section_id===sid).map(t=>t.pos))+1;
     const {data,error}=await sb.from("tasks").insert({section_id:sid,t:"",pos}).select().single();
-    if(error){setStatus("Не удалось добавить задачу",true);return}
+    if(error){setStatus("Не удалось добавить задачу","warn");return}
     tasks.push(data);render();const f=$("t-"+data.id);if(f)f.focus();return}
-  if(b.dataset.del){
-    const id=b.dataset.del;tasks=tasks.filter(t=>t.id!==id);render();
-    run(sb.from("tasks").delete().eq("id",id),"Удалено");return}
+  if(b.dataset.del){const id=b.dataset.del;tasks=tasks.filter(t=>t.id!==id);render();run(sb.from("tasks").delete().eq("id",id),"Удалено");return}
   if(b.dataset.delsec){
     const id=b.dataset.delsec;
     if(tasks.some(t=>t.section_id===id)&&!b.classList.contains("ask")){b.classList.add("ask");b.textContent="Удалить раздел?";return}
@@ -184,14 +283,15 @@ document.addEventListener("click",async e=>{
     run(sb.from("sections").delete().eq("id",id),"Удалено");return}
 });
 
-let reloadTimer=null;
+let rt=null;const reload=()=>{clearTimeout(rt);rt=setTimeout(load,400)};
 sb.channel("checklist")
-  .on("postgres_changes",{event:"*",schema:"public",table:"tasks"},()=>{clearTimeout(reloadTimer);reloadTimer=setTimeout(load,400)})
-  .on("postgres_changes",{event:"*",schema:"public",table:"sections"},()=>{clearTimeout(reloadTimer);reloadTimer=setTimeout(load,400)})
+  .on("postgres_changes",{event:"*",schema:"public",table:"tasks"},reload)
+  .on("postgres_changes",{event:"*",schema:"public",table:"sections"},reload)
   .subscribe();
-document.addEventListener("visibilitychange",()=>{if(!document.hidden)load()});
+document.addEventListener("visibilitychange",()=>{if(!document.hidden){countdown();load()}});
 
-load().then(()=>{if(!$("status").classList.contains("warn"))setStatus("Всё сохранено")});
+countdown();
+load().then(ok=>{if(ok)setStatus("Всё сохранено")});
 })();
 </script>
 </body>
