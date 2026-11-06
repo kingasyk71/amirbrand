@@ -108,6 +108,15 @@ label.row:hover .btnface{color:var(--navy)}
 .t .d{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--brass)}
 li.done .t b{color:#9a9385}
 li.done .t b::after{transform:scaleX(1)}
+.who{align-self:flex-start;margin-top:3px;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border-radius:3px;border:1px solid currentColor}
+.who.w-Асылбек{color:var(--navy)} .who.w-Расул{color:var(--oxblood)} .who.w-Альбина{color:#5b7a4a} .who.w-none{color:var(--muted);border-style:dashed}
+.people{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-block:0 10px}
+.people::-webkit-scrollbar{display:none}
+.pp{flex:none;border:1px solid var(--rule);background:var(--page);color:var(--ink);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;min-height:34px;transition:background .2s,color .2s,transform .16s var(--ease)}
+.pp:active{transform:scale(.96)}
+.pp[aria-pressed="true"]{background:var(--navy);color:var(--chalk);border-color:var(--navy)}
+.pp span{font-family:var(--mono);font-size:11px;opacity:.6;margin-left:4px}
+.f select{font:inherit;font-size:13px;color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:4px;padding:7px 6px;max-width:34%}
 .empty{color:var(--muted);font-size:13px;padding:12px 0;font-style:italic}
 
 /* edit mode */
@@ -117,7 +126,7 @@ li.done .t b::after{transform:scaleX(1)}
 .f input.main{font-weight:500}
 .f input.sm{font-size:13px}
 .pair{display:flex;gap:6px}
-.pair input:last-child{max-width:38%}
+.pair input:last-child{max-width:30%}
 .sec-edit{display:flex;gap:6px;align-items:center;margin-bottom:6px;position:relative}
 .sec-edit input.main{font-family:var(--display);font-size:20px}
 .del{flex:none;border:0;background:transparent;color:var(--oxblood);font-size:20px;line-height:1;min-width:32px;height:32px;border-radius:4px}
@@ -145,7 +154,7 @@ footer span{color:var(--brass);white-space:nowrap}
   <div class="gut head">
     <div class="label">Amir · Premium Collection<i></i>Атырау</div>
     <h1><span class="w">Открытие</span> <span class="w" style="animation-delay:.08s">в</span> <em class="w" style="animation-delay:.16s">«Сыйлық»</em></h1>
-    <div class="sub"><span>Чеклист ателье</span><span>Открытие <b>14.11.2026</b></span><span id="left"></span></div>
+    <div class="sub"><span>Чеклист ателье</span><span>Открытие <b>13.11.2026</b></span><span id="left"></span></div>
     <div class="tapewrap">
       <div class="tape" aria-hidden="true"><div class="ticks"></div><div class="fill" id="fill"></div><div class="nums" id="nums"></div><div class="pin" id="pin"></div></div>
       <div class="tapemeta"><span>Сшито задач</span><span class="count" id="count">— / —</span></div>
@@ -153,14 +162,16 @@ footer span{color:var(--brass);white-space:nowrap}
   </div>
 </div>
 <div class="bar"><div class="gut"><span class="status busy" id="status">Загружаю…</span><button class="btn" id="mode" type="button">Редактировать</button></div></div>
-<main class="gut"><div id="list" class="first"></div></main>
+<main class="gut"><div class="people" id="people" role="group" aria-label="Чьи задачи"></div><div id="list" class="first"></div></main>
 <footer class="gut">Правки видят все, у кого есть ссылка · <span>Growth AG</span></footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
 (function(){
 const sb = supabase.createClient("https://atjvitgupjmcyofouiuq.supabase.co","sb_publishable_FbzqjYRbgXE6xgQ7r9mGSQ_xXsyZmjF");
-const OPEN = new Date(2026,10,14);
+const OPEN = new Date(2026,10,13);
+const PEOPLE=["Асылбек","Расул","Альбина"];
+let who="Все";
 let sections=[], tasks=[], edit=false, pendingRender=false, firstDone=false, completeSet=null;
 const timers={};
 const $=id=>document.getElementById(id);
@@ -193,7 +204,8 @@ function render(){
   const list=$("list");
   list.classList.toggle("editing",edit);
   list.innerHTML=sections.map((sec,i)=>{
-    const its=tasks.filter(t=>t.section_id===sec.id);
+    const all=tasks.filter(t=>t.section_id===sec.id);
+    const its=edit||who==="Все"?all:all.filter(t=>t.who===who);
     const dn=its.filter(t=>t.done).length;
     const complete=nowComplete.has(sec.id);
     const fresh=complete&&completeSet&&!completeSet.has(sec.id);
@@ -202,11 +214,14 @@ function render(){
       :`<div class="sec-h"><h2>${esc(sec.title)}</h2><span class="sec-meta">${sec.due?`<span class="due">${esc(sec.due)}</span>`:""}${complete?`<span class="stamp${fresh?" fresh":""}">Готово</span>`:its.length?`<span class="frac">${dn}/${its.length}</span>`:""}</span></div>`;
     const items=its.map(it=>{
       const cid=`c-${it.id}`;
-      if(edit) return `<li class="${it.done?"done":""}"><div class="row"><input class="cb" type="checkbox" id="${cid}" data-done="${it.id}" ${it.done?"checked":""} aria-label="Готово">${BTN}<div class="f"><input class="main" id="t-${it.id}" data-tbl="tasks" data-id="${it.id}" data-k="t" value="${esc(it.t)}" placeholder="Задача"><div class="pair"><input class="sm" data-tbl="tasks" data-id="${it.id}" data-k="n" value="${esc(it.n)}" placeholder="Комментарий"><input class="sm" data-tbl="tasks" data-id="${it.id}" data-k="d" value="${esc(it.d)}" placeholder="Срок"></div></div><button class="del" type="button" data-del="${it.id}" aria-label="Удалить задачу">×</button></div></li>`;
-      return `<li class="${it.done?"done":""}"><label class="row" for="${cid}"><input class="cb" type="checkbox" id="${cid}" data-done="${it.id}" ${it.done?"checked":""}>${BTN}<span class="t"><b>${esc(it.t)}</b>${it.n?`<span class="note">${esc(it.n)}</span>`:""}${it.d?`<span class="d">${esc(it.d)}</span>`:""}</span></label></li>`;
+      if(edit) return `<li class="${it.done?"done":""}"><div class="row"><input class="cb" type="checkbox" id="${cid}" data-done="${it.id}" ${it.done?"checked":""} aria-label="Готово">${BTN}<div class="f"><input class="main" id="t-${it.id}" data-tbl="tasks" data-id="${it.id}" data-k="t" value="${esc(it.t)}" placeholder="Задача"><div class="pair"><input class="sm" data-tbl="tasks" data-id="${it.id}" data-k="n" value="${esc(it.n)}" placeholder="Комментарий"><input class="sm" data-tbl="tasks" data-id="${it.id}" data-k="d" value="${esc(it.d)}" placeholder="Срок"><select data-tbl="tasks" data-id="${it.id}" data-k="who" aria-label="Кто делает"><option value="">Кто?</option>${PEOPLE.map(p=>`<option${p===it.who?" selected":""}>${p}</option>`).join("")}</select></div></div><button class="del" type="button" data-del="${it.id}" aria-label="Удалить задачу">×</button></div></li>`;
+      return `<li class="${it.done?"done":""}"><label class="row" for="${cid}"><input class="cb" type="checkbox" id="${cid}" data-done="${it.id}" ${it.done?"checked":""}>${BTN}<span class="t"><b>${esc(it.t)}</b>${it.n?`<span class="note">${esc(it.n)}</span>`:""}${it.d?`<span class="d">${esc(it.d)}</span>`:""}<span class="who ${it.who?"w-"+it.who:"w-none"}">${it.who?esc(it.who):"кто?"}</span></span></label></li>`;
     }).join("");
+    if(!edit&&who!=="Все"&&!its.length)return "";
     return `<section class="sec" style="--i:${i}">${head}<ul>${items||(edit?"":'<li class="empty">Пока пусто</li>')}</ul>${edit?`<button class="link" type="button" data-add="${sec.id}">+ Добавить задачу</button>`:""}</section>`;
   }).join("")+(edit?`<button class="addsec" type="button" id="addsec">+ Новый раздел</button>`:"");
+  $("people").hidden=edit;
+  $("people").innerHTML=["Все",...PEOPLE].map(p=>{const n=tasks.filter(t=>!t.done&&(p==="Все"||t.who===p)).length;return `<button class="pp" type="button" data-who="${p}" aria-pressed="${p===who}">${p}<span>${n}</span></button>`}).join("");
   completeSet=nowComplete;
   if(firstDone)list.classList.remove("first");
   firstDone=true;
@@ -244,7 +259,9 @@ async function run(p,ok){
 }
 
 document.addEventListener("change",e=>{
-  const el=e.target;if(!el.dataset.done)return;
+  const el=e.target;
+  if(el.tagName==="SELECT"&&el.dataset.tbl){const row=tasks.find(r=>r.id===el.dataset.id);if(row)row.who=el.value;run(sb.from("tasks").update({who:el.value}).eq("id",el.dataset.id));return}
+  if(!el.dataset.done)return;
   const it=tasks.find(t=>t.id===el.dataset.done);if(!it)return;
   it.done=el.checked;el.closest("li").classList.toggle("done",el.checked);
   progress();liveSection(it.id);
@@ -261,6 +278,7 @@ document.addEventListener("input",e=>{
 document.addEventListener("focusout",()=>setTimeout(()=>{if(pendingRender)safeRender()},0));
 document.addEventListener("click",async e=>{
   const b=e.target.closest("button");if(!b)return;
+  if(b.dataset.who){who=b.dataset.who;render();return}
   if(b.id==="mode"){
     if(edit){const empty=tasks.filter(t=>!t.t.trim()).map(t=>t.id);
       if(empty.length){tasks=tasks.filter(t=>!empty.includes(t.id));run(sb.from("tasks").delete().in("id",empty))}}
